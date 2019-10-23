@@ -24,11 +24,14 @@ const server = http.createServer(function(req,res){
     // Get the HTTP method
     const method = req.method.toLowerCase();
 
+    // Get the headers as an object - work with postman
+    const headers = req.headers;
+
     // Send the response 
     res.end('Hello world\n');    
     
     // Log the request path
-    console.log('Request is received on path: ' + trimmedPath + 'with method: ' + method + ' and with these query string parameters', queryStringObject);
+    console.log('Request received with these headers',headers);
     // command 'node index.js' in node shell and 'curl localhost:3000/foo' in cmd shell 
     // command 'curl localhost:3000/foo/bar/'
 });
