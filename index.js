@@ -18,6 +18,9 @@ const server = http.createServer(function(req,res){
     const path = parsedUrl.pathname;
     const trimmedPath = path.replace(/^\/+|\/+$/g,'');
 
+    // Get the query string as an object --- command 'curl localhost:3000/foo?fizz=buzz
+    const queryStringObject = parsedUrl.query;
+
     // Get the HTTP method
     const method = req.method.toLowerCase();
 
@@ -25,7 +28,7 @@ const server = http.createServer(function(req,res){
     res.end('Hello world\n');    
     
     // Log the request path
-    console.log('Request is received on path: ' + trimmedPath + 'with method: ' + method);
+    console.log('Request is received on path: ' + trimmedPath + 'with method: ' + method + ' and with these query string parameters', queryStringObject);
     // command 'node index.js' in node shell and 'curl localhost:3000/foo' in cmd shell 
     // command 'curl localhost:3000/foo/bar/'
 });
