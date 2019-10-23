@@ -18,11 +18,14 @@ const server = http.createServer(function(req,res){
     const path = parsedUrl.pathname;
     const trimmedPath = path.replace(/^\/+|\/+$/g,'');
 
+    // Get the HTTP method
+    const method = req.method.toLowerCase();
+
     // Send the response 
     res.end('Hello world\n');    
     
     // Log the request path
-    console.log('Request is received on path: ' + trimmedPath);
+    console.log('Request is received on path: ' + trimmedPath + 'with method: ' + method);
     // command 'node index.js' in node shell and 'curl localhost:3000/foo' in cmd shell 
     // command 'curl localhost:3000/foo/bar/'
 });
