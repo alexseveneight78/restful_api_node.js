@@ -37,11 +37,39 @@ const server = http.createServer(function(req,res){
     req.on('end', function(){
         buffer += decoder.end();
 
-        // Send the response 
-        res.end('Hello world\n');    
+
+        // Choose the handler this request should go to. If one isn`t found, use the notFound handler.
+        let chosenHandler = typeof(router[trimmedPath]) !== 'undefined' ? router[trimmedPath] : handlers.notFound;
         
+        //Construct the data object to send to the handler
+        let data = {
+            'trimmedPath': trimmedPath,
+            'queryStringObject': queryStringObject,
+            'method': method,
+            'headers': headers,
+            'payload': buffer
+        };
+
+        // Route the request to the handler specified in the router
+        chosenHandler(data, function(statusCode,payload){
+            // Use the status code callback by the handler or default to 200
+            statusCode = typeof(statusCode) === 'number' ? statusCode : 200;
+            // Use the payload called back by the handler, or default to an empty object
+            payload = typeof(payload) === 'object' ? payload : {};
+
+            // Convert the payload to a string
+            let payloadString = JSON.stringify(payload);
+
+            // Return the response
+            res.writeHead(statusCode);
+            res.end(payloadString);    
+
         // Log the request path
-        console.log('Request received with this payload',buffer);
+        console.log('Returning this response',statusCode, payloadString);
+        });
+        
+        // Send the response 
+        
         // command 'node index.js' in node shell and 'curl localhost:3000/foo' in cmd shell 
         // command 'curl localhost:3000/foo/bar/'
     });
@@ -51,3 +79,23 @@ const server = http.createServer(function(req,res){
 server.listen(3000, function(){
     console.log('The servers listening on port 3000 now');
 });
+
+// Define the handlers 
+let handlers = {
+
+};
+// Sample handler 
+handlers.sample = function(data,callback){
+    //callback a http status code and a payload object
+    callback(406,{'name': 'sample handler'})
+};
+
+// Not found handler 
+handlers.notFound = function(data,callback) {
+    callback(404);
+};
+
+// Define a request router
+let router = {
+    'sample': handlers.sample
+};
