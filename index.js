@@ -6,13 +6,38 @@
 
 // Dependencies 
 const http = require('http');
+const https = require('https');
 const url = require('url');
 const StringDecoder = require('string_decoder').StringDecoder;
 const config = require('./config');
+const fs = require('fs');
 
-// The server should respond to all requests with a string 
-const server = http.createServer(function(req,res){
+// Instantiating the HTTP server
+const httpServer = http.createServer(function(req,res){
+    unifiedServer(req,res);
+});
 
+// Start the server
+httpServer.listen(config.httpPort, function(){
+    console.log('The servers listening on port '+config.httpPort);
+});
+// Instantiate HTTPS server 
+let httpsServerOptions = {
+    'key': fs.readFileSync('./https/key.pem'),
+    'cert': fs.readFileSync('./https/cert.pem')
+};
+
+const httpsServer = https.createServer(httpsServerOptions,function(req,res){
+    unifiedServer(req,res);
+});
+
+// Start the HTTPS server
+httpsServer.listen(config.httpsPort, function(){
+    console.log('The servers listening on port '+config.httpsPort);
+});
+
+// All the server logic for both the http and https createServer
+let unifiedServer = function(req,res) {
     // Get the URL and parse it
     let parsedUrl = url.parse(req.url, true);
 
@@ -75,13 +100,7 @@ const server = http.createServer(function(req,res){
         // command 'node index.js' in node shell and 'curl localhost:3000/foo' in cmd shell 
         // command 'curl localhost:3000/foo/bar/'
     });
-});
-
-// Start the server
-server.listen(config.port, function(){
-    console.log('The servers listening on port '+config.port+' in '+config.envName+' mode');
-});
-
+}
 // Define the handlers 
 let handlers = {
 
@@ -101,3 +120,6 @@ handlers.notFound = function(data,callback) {
 let router = {
     'sample': handlers.sample
 };
+
+
+// gitbash-command for SSL 'openssl req -newkey rsa:2048 -new -nodes -x509 -days 3650 -keyout key.pem -out cert.pem'
